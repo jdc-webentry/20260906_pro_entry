@@ -87,7 +87,7 @@ input.err { border-color: var(--error) !important; }
 
 .two-col { display: grid; grid-template-columns: 1fr 1fr; column-gap: 22px; row-gap: 0; }
 /* リーダー列とパートナー列の各段（見出し・登録番号・ふりがな・漢字）を横一線にそろえる */
-.player-col { display: grid; grid-template-rows: subgrid; grid-row: span 4; }
+.player-col { display: grid; grid-template-rows: subgrid; grid-row: span 5; }
 @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } .player-col + .player-col { margin-top: 10px; } }
 
 .player-col-title {
@@ -252,10 +252,10 @@ footer { text-align: center; font-size: 12px; color: var(--text-muted); padding:
               <label>JDCプロフェッショナル登録番号<span class="req">*</span></label>
               <div class="reg-wrap">
                 <input type="text" id="regLeaderP1" class="reg-input" maxlength="1" placeholder="1"
-                       oninput="handleRegInput(this,'regLeaderP2'); mirrorPartnerReg(); lookupLeaderData();" inputmode="numeric" autocomplete="off" style="width:52px;">
+                       oninput="handleRegInput(this,'regLeaderP2'); lookupLeaderData();" inputmode="numeric" autocomplete="off" style="width:52px;">
                 <span class="reg-sep">-</span>
                 <input type="text" id="regLeaderP2" class="reg-input" maxlength="3" placeholder="234"
-                       oninput="handleRegInput(this,null); mirrorPartnerReg(); lookupLeaderData();" inputmode="numeric" autocomplete="off" style="width:72px;">
+                       oninput="handleRegInput(this,null); lookupLeaderData();" inputmode="numeric" autocomplete="off" style="width:72px;">
               </div>
               <div class="reg-hint">登録番号（1桁－3桁）を入力すると即座にデータを自動表示、番号を消すと自動表示したデータも消えます（登録データがある場合）</div>
               <div class="err-msg" id="regLeader-err">登録番号は「1桁－3桁」の半角数字で入力してください</div>
@@ -264,14 +264,18 @@ footer { text-align: center; font-size: 12px; color: var(--text-muted); padding:
             </div>
 
             <div class="form-group">
-              <label>リーダー名（ふりがな）<span class="req">*</span><span class="opt">（半角カナに自動変換）</span></label>
-              <input type="text" id="leaderKana" placeholder="例：ﾔﾏﾀﾞ ﾀﾛｳ" autocomplete="off">
+              <label>リーダー名（ふりがな）<span class="req">*</span></label>
+              <input type="text" id="leaderKana" placeholder="例：ヤマダ タロウ" autocomplete="off" oninput="syncTransferDefaults();">
               <div class="err-msg" id="leaderKana-err">ふりがなを入力してください</div>
             </div>
             <div class="form-group">
               <label>リーダー名（漢字）<span class="req">*</span></label>
               <input type="text" id="leaderKanji" placeholder="例：山田　太郎" autocomplete="off">
               <div class="err-msg" id="leaderKanji-err">氏名を入力してください</div>
+            </div>
+            <div class="form-group">
+              <label>所属団体<span class="opt">（任意）</span></label>
+              <input type="text" id="leaderOrg" placeholder="例：JDC" autocomplete="off">
             </div>
           </div>
 
@@ -283,24 +287,28 @@ footer { text-align: center; font-size: 12px; color: var(--text-muted); padding:
               <label>JDCプロフェッショナル登録番号<span class="req">*</span></label>
               <div class="reg-wrap">
                 <input type="text" id="regPartnerP1" class="reg-input" maxlength="1" placeholder="1"
-                       oninput="handleRegInput(this,'regPartnerP2'); markPartnerRegDirty();" inputmode="numeric" autocomplete="off" style="width:52px;">
+                       oninput="handleRegInput(this,'regPartnerP2');" inputmode="numeric" autocomplete="off" style="width:52px;">
                 <span class="reg-sep">-</span>
                 <input type="text" id="regPartnerP2" class="reg-input" maxlength="3" placeholder="234"
-                       oninput="handleRegInput(this,null); markPartnerRegDirty();" inputmode="numeric" autocomplete="off" style="width:72px;">
+                       oninput="handleRegInput(this,null);" inputmode="numeric" autocomplete="off" style="width:72px;">
               </div>
-              <div class="reg-hint">リーダーと同じ登録番号が自動入力されます（別の番号の場合は書き換えてください）</div>
+              <div class="reg-hint">リーダーの登録番号から自動入力されます（手入力も可）</div>
               <div class="err-msg" id="regPartner-err">登録番号は「1桁－3桁」の半角数字で入力してください</div>
             </div>
 
             <div class="form-group">
-              <label>パートナー名（ふりがな）<span class="req">*</span><span class="opt">（半角カナに自動変換）</span></label>
-              <input type="text" id="partnerKana" placeholder="例：ｽｽﾞｷ ﾊﾅｺ" autocomplete="off">
+              <label>パートナー名（ふりがな）<span class="req">*</span></label>
+              <input type="text" id="partnerKana" placeholder="例：スズキ ハナコ" autocomplete="off">
               <div class="err-msg" id="partnerKana-err">ふりがなを入力してください</div>
             </div>
             <div class="form-group">
               <label>パートナー名（漢字）<span class="req">*</span></label>
               <input type="text" id="partnerKanji" placeholder="例：鈴木　花子" autocomplete="off">
               <div class="err-msg" id="partnerKanji-err">氏名を入力してください</div>
+            </div>
+            <div class="form-group">
+              <label>所属団体<span class="opt">（任意）</span></label>
+              <input type="text" id="partnerOrg" placeholder="例：JDC" autocomplete="off">
             </div>
           </div>
 
@@ -401,8 +409,8 @@ footer { text-align: center; font-size: 12px; color: var(--text-muted); padding:
             <div class="err-msg" id="transferDate-err">振込日を入力してください</div>
           </div>
           <div class="form-group">
-            <label>振込人名<span class="req">*</span><span class="opt">（半角カナ）</span></label>
-            <input type="text" id="transferName" placeholder="例：ﾔﾏﾀﾞ ﾀﾛｳ" autocomplete="off" oninput="markTransferDirty('transferName');">
+            <label>振込人名<span class="req">*</span></label>
+            <input type="text" id="transferName" placeholder="例：ヤマダ タロウ" autocomplete="off" oninput="markTransferDirty('transferName');">
             <div class="err-msg" id="transferName-err">振込人名を入力してください</div>
           </div>
           <div class="form-group">
@@ -415,7 +423,7 @@ footer { text-align: center; font-size: 12px; color: var(--text-muted); padding:
             <div class="err-msg" id="transferAmount-err">振込金額を入力してください</div>
           </div>
         </div>
-        <div class="reg-hint">振込人名にはリーダー名（半角カタカナ）、振込金額には合計出場料を自動で表示します。実際の振込内容と異なる場合は書き換えてください。</div>
+        <div class="reg-hint">振込人名にはリーダー名（カタカナ）、振込金額には合計出場料を自動で表示します。実際の振込内容と異なる場合は書き換えてください。</div>
       </div>
     </div>
 
@@ -450,6 +458,8 @@ footer { text-align: center; font-size: 12px; color: var(--text-muted); padding:
         <tr><th>登録番号（パートナー）</th><td id="c-regPartner"></td></tr>
         <tr><th>リーダー名</th><td id="c-leader"></td></tr>
         <tr><th>パートナー名</th><td id="c-partner"></td></tr>
+        <tr><th>リーダー所属団体</th><td id="c-leaderOrg"></td></tr>
+        <tr><th>パートナー所属団体</th><td id="c-partnerOrg"></td></tr>
         <tr><th>所属教室</th><td id="c-school"></td></tr>
         <tr><th>支局</th><td id="c-branch"></td></tr>
         <tr><th>住所</th><td id="c-address"></td></tr>
@@ -545,60 +555,13 @@ function toKatakana(str) {
   t = t.replace(/[ぁ-ゖ]/g, function(c) { return String.fromCharCode(c.charCodeAt(0) + 0x60); });
   return t;
 }
-/* ひらがな・全角カタカナ → 半角カタカナ（濁点・半濁点は「ｶﾞ」のように2文字へ分解） */
-var HK_MAP = (function() {
-  var fw = 'ヲァィゥェォャュョッーアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワンヴ' +
-           'ガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポ' + '　・';
-  var hw = ['ｦ','ｧ','ｨ','ｩ','ｪ','ｫ','ｬ','ｭ','ｮ','ｯ','ｰ','ｱ','ｲ','ｳ','ｴ','ｵ','ｶ','ｷ','ｸ','ｹ','ｺ','ｻ','ｼ','ｽ','ｾ','ｿ','ﾀ','ﾁ','ﾂ','ﾃ','ﾄ','ﾅ','ﾆ','ﾇ','ﾈ','ﾉ','ﾊ','ﾋ','ﾌ','ﾍ','ﾎ','ﾏ','ﾐ','ﾑ','ﾒ','ﾓ','ﾔ','ﾕ','ﾖ','ﾗ','ﾘ','ﾙ','ﾚ','ﾛ','ﾜ','ﾝ','ｳﾞ',
-            'ｶﾞ','ｷﾞ','ｸﾞ','ｹﾞ','ｺﾞ','ｻﾞ','ｼﾞ','ｽﾞ','ｾﾞ','ｿﾞ','ﾀﾞ','ﾁﾞ','ﾂﾞ','ﾃﾞ','ﾄﾞ','ﾊﾞ','ﾋﾞ','ﾌﾞ','ﾍﾞ','ﾎﾞ',
-            'ﾊﾟ','ﾋﾟ','ﾌﾟ','ﾍﾟ','ﾎﾟ',' ','･'];
-  var m = {};
-  for (var i = 0; i < fw.length; i++) m[fw.charAt(i)] = hw[i];
-  return m;
-})();
-function toHalfKana(str) {
-  var t = String(str || '');
-  t = t.replace(/[ぁ-ゖ]/g, function(c) { return String.fromCharCode(c.charCodeAt(0) + 0x60); }); // ひらがな→カタカナ
-  t = t.replace(/[ァ-ヴーヲ-ン・　]/g, function(c) { return HK_MAP[c] !== undefined ? HK_MAP[c] : c; });
-  t = t.replace(/[ー−‐―]/g, 'ｰ');
-  return t;
-}
-/* ふりがな系の入力欄を半角カナに揃える（IME変換中は触らず、確定後に変換） */
-var KANA_FIELDS = ['leaderKana', 'partnerKana', 'transferName'];
-function normalizeKanaField(id) {
-  var el = document.getElementById(id);
-  if (!el) return;
-  var v = toHalfKana(el.value);
-  if (v !== el.value) el.value = v;
-}
-function initKanaFields() {
-  KANA_FIELDS.forEach(function(id) {
-    var el = document.getElementById(id);
-    if (!el) return;
-    var composing = false;
-    el.addEventListener('compositionstart', function() { composing = true; });
-    el.addEventListener('compositionend', function() {
-      composing = false;
-      normalizeKanaField(id);
-      if (id === 'leaderKana') syncTransferDefaults();
-      if (id === 'transferName') markTransferDirty('transferName');
-    });
-    el.addEventListener('input', function() {
-      if (composing) return;
-      normalizeKanaField(id);
-      if (id === 'leaderKana') syncTransferDefaults();
-    });
-    el.addEventListener('blur', function() { normalizeKanaField(id); });
-  });
-}
-
 var transferDirty = { transferName: false, transferAmount: false };
 function markTransferDirty(id) {            // 利用者が手で入力したら自動表示を止める（空にすると再び自動表示）
   transferDirty[id] = val(id) !== '';
 }
 function syncTransferDefaults() {
   if (!transferDirty.transferName) {
-    document.getElementById('transferName').value = toHalfKana(val('leaderKana'));
+    document.getElementById('transferName').value = toKatakana(val('leaderKana'));
   }
   if (!transferDirty.transferAmount) {
     var t = calcTotal();
@@ -614,17 +577,6 @@ function handleRegInput(el, nextId) {
   if (nextId && el.value.length === parseInt(el.maxLength))
     document.getElementById(nextId).focus();
 }
-/* パートナー登録番号：リーダーと同じ番号を自動入力（パートナー欄を手で書き換えた場合は自動入力を止める。空にすると再開） */
-var partnerRegDirty = false;
-function markPartnerRegDirty() {
-  partnerRegDirty = (document.getElementById('regPartnerP1').value !== '' || document.getElementById('regPartnerP2').value !== '');
-  if (!partnerRegDirty) mirrorPartnerReg();
-}
-function mirrorPartnerReg() {
-  if (partnerRegDirty) return;
-  document.getElementById('regPartnerP1').value = document.getElementById('regLeaderP1').value;
-  document.getElementById('regPartnerP2').value = document.getElementById('regLeaderP2').value;
-}
 function getRegNo(p1Id, p2Id) {
   var p1 = document.getElementById(p1Id).value.trim();
   var p2 = document.getElementById(p2Id).value.trim();
@@ -635,7 +587,7 @@ function getRegNo(p1Id, p2Id) {
 
 /* ═════════ リーダー登録番号オートフィル（Googleスプレッドシート連携） ═════════
    名簿はHTMLに保存せず、入力の都度 GAS（Code.gs）経由でスプレッドシートから該当1件を取得する */
-var AUTOFILL_FIELDS = ['leaderKana','leaderKanji','school','branch','partnerKana','partnerKanji'];
+var AUTOFILL_FIELDS = ['leaderKana','leaderKanji','leaderOrg','school','branch','partnerKana','partnerKanji','partnerOrg'];
 var lookupSeq = 0;
 
 function setLookupStatus(text, warn) {
@@ -649,8 +601,8 @@ function setLookupStatus(text, warn) {
 
 function clearAutofillData() {
   AUTOFILL_FIELDS.forEach(function(id) { document.getElementById(id).value = ''; });
-  partnerRegDirty = false;
-  mirrorPartnerReg();
+  document.getElementById('regPartnerP1').value = '';
+  document.getElementById('regPartnerP2').value = '';
   var msgEl = document.getElementById('leader-autofill-msg');
   if (msgEl) msgEl.classList.remove('show');
   syncTransferDefaults();
@@ -663,15 +615,25 @@ function applyMember(found) {
     el.classList.add('autofill-flash');
     setTimeout(function() { el.classList.remove('autofill-flash'); }, 1000);
   }
-  fill('leaderKana', toHalfKana(found.leaderKana));
+  fill('leaderKana', found.leaderKana);
   fill('leaderKanji', found.leaderKanji);
+  fill('leaderOrg', found.leaderOrg);   // 名簿の「リーダー組織」列
   fill('school', found.leaderSchool);   // 名簿の「所属」列（G列・リーダー／パートナー共通）
   fill('branch', found.branch);         // 名簿の「支局」列（H列）
-  fill('partnerKana', toHalfKana(found.partnerKana));
+  fill('partnerKana', found.partnerKana);
   fill('partnerKanji', found.partnerKanji);
+  fill('partnerOrg', found.partnerOrg); // 名簿の「パートナー組織」列
 
-  partnerRegDirty = false;
-  mirrorPartnerReg();   // パートナー登録番号はリーダーと同じ番号
+  var pp1 = document.getElementById('regPartnerP1');
+  var pp2 = document.getElementById('regPartnerP2');
+  pp1.value = ''; pp2.value = '';
+  if (found.regPartner) {
+    var parts = String(found.regPartner).split('-');
+    if (parts.length === 2 && /^[0-9]$/.test(parts[0]) && /^[0-9]{1,3}$/.test(parts[1])) {
+      pp1.value = parts[0];
+      pp2.value = parts[1];
+    }
+  }
   document.getElementById('leader-autofill-msg').classList.add('show');
   syncTransferDefaults();
 }
@@ -913,12 +875,13 @@ function eventLine(ev) { return '【No.' + ev.no + '】' + ev.grade + ' ' + ev.n
 function schoolOr(id) { return val(id) || '未記入'; }
 
 function goConfirm() {
-  KANA_FIELDS.forEach(normalizeKanaField);
   if (!validate()) return;
   document.getElementById('c-regLeader').textContent  = getRegNo('regLeaderP1', 'regLeaderP2');
   document.getElementById('c-regPartner').textContent = getRegNo('regPartnerP1', 'regPartnerP2');
   document.getElementById('c-leader').textContent  = val('leaderKanji') + '（' + val('leaderKana') + '）';
   document.getElementById('c-partner').textContent = val('partnerKanji') + '（' + val('partnerKana') + '）';
+  document.getElementById('c-leaderOrg').textContent = schoolOr('leaderOrg');
+  document.getElementById('c-partnerOrg').textContent = schoolOr('partnerOrg');
   document.getElementById('c-school').textContent = schoolOr('school');
   document.getElementById('c-branch').textContent = schoolOr('branch');
   document.getElementById('c-address').textContent = addressString();
@@ -956,7 +919,6 @@ function backToForm() {
 
 /* ═════════ 送信（EmailJS は await／GAS は fire-and-forget） ═════════ */
 async function submitForm() {
-  KANA_FIELDS.forEach(normalizeKanaField);
   var btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 送信中...';
@@ -965,6 +927,8 @@ async function submitForm() {
   var regPartner = getRegNo('regPartnerP1', 'regPartnerP2');
   var leaderKanji = val('leaderKanji'), leaderKana = val('leaderKana');
   var partnerKanji = val('partnerKanji'), partnerKana = val('partnerKana');
+  var leaderOrg = schoolOr('leaderOrg');
+  var partnerOrg = schoolOr('partnerOrg');
   var school = schoolOr('school');
   var branch = schoolOr('branch');
   var addrVal = addressString();
@@ -982,6 +946,8 @@ async function submitForm() {
     'パートナー登録番号：' + regPartner + '\n' +
     'リーダー：' + leaderKanji + '（' + leaderKana + '）\n' +
     'パートナー：' + partnerKanji + '（' + partnerKana + '）\n' +
+    'リーダー所属団体：' + leaderOrg + '\n' +
+    'パートナー所属団体：' + partnerOrg + '\n' +
     '所属教室：' + school + '\n' +
     '支局：' + branch + '\n' +
     '住所：' + addrVal + '\n' +
@@ -997,7 +963,7 @@ async function submitForm() {
     regLeader: regLeader, regPartner: regPartner,
     leaderKanji: leaderKanji, leaderKana: leaderKana,
     partnerKanji: partnerKanji, partnerKana: partnerKana,
-    leaderSchool: school, partnerSchool: school, branch: branch,   // 共通の所属教室（GASの列構成は変えない）
+    leaderSchool: school, partnerSchool: school, leaderOrg: leaderOrg, partnerOrg: partnerOrg, branch: branch,   // 共通の所属教室（GASの列構成は変えない）
     address: addrVal,
     phone: "'" + phone,                 // 先頭 ' で0落ち防止（GAS側で除去）
     events: selEvList.join(' / '),
@@ -1009,7 +975,6 @@ async function submitForm() {
   var params = {
     to_email:  ORGANIZER_EMAIL,
     to_name:   leaderKanji + ' / ' + partnerKanji,
-    name:      leaderKanji + ' / ' + partnerKanji,   // テンプレートの {{name}} 用（「A message by ○○ has been received」）
     subject:   '【プロ】競技会申し込み書',
     from_name: EVENT_TITLE + ' 申込受付',
     message:   messageBody,
@@ -1046,7 +1011,6 @@ async function submitForm() {
 }
 
 buildEvCards();
-initKanaFields();
 updateTotal();
 </script>
 </body>
