@@ -1009,6 +1009,7 @@ async function submitForm() {
   var params = {
     to_email:  ORGANIZER_EMAIL,
     to_name:   leaderKanji + ' / ' + partnerKanji,
+    name:      leaderKanji + ' / ' + partnerKanji,   // テンプレートの {{name}} 用（「A message by ○○ has been received」）
     subject:   '【プロ】競技会申し込み書',
     from_name: EVENT_TITLE + ' 申込受付',
     message:   messageBody,
