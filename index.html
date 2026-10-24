@@ -252,10 +252,10 @@ footer { text-align: center; font-size: 12px; color: var(--text-muted); padding:
               <label>JDCプロフェッショナル登録番号<span class="req">*</span></label>
               <div class="reg-wrap">
                 <input type="text" id="regLeaderP1" class="reg-input" maxlength="1" placeholder="1"
-                       oninput="handleRegInput(this,'regLeaderP2'); lookupLeaderData();" inputmode="numeric" autocomplete="off" style="width:52px;">
+                       oninput="handleRegInput(this,'regLeaderP2'); mirrorPartnerReg(); lookupLeaderData();" inputmode="numeric" autocomplete="off" style="width:52px;">
                 <span class="reg-sep">-</span>
                 <input type="text" id="regLeaderP2" class="reg-input" maxlength="3" placeholder="234"
-                       oninput="handleRegInput(this,null); lookupLeaderData();" inputmode="numeric" autocomplete="off" style="width:72px;">
+                       oninput="handleRegInput(this,null); mirrorPartnerReg(); lookupLeaderData();" inputmode="numeric" autocomplete="off" style="width:72px;">
               </div>
               <div class="reg-hint">登録番号（1桁－3桁）を入力すると即座にデータを自動表示、番号を消すと自動表示したデータも消えます（登録データがある場合）</div>
               <div class="err-msg" id="regLeader-err">登録番号は「1桁－3桁」の半角数字で入力してください</div>
@@ -283,12 +283,12 @@ footer { text-align: center; font-size: 12px; color: var(--text-muted); padding:
               <label>JDCプロフェッショナル登録番号<span class="req">*</span></label>
               <div class="reg-wrap">
                 <input type="text" id="regPartnerP1" class="reg-input" maxlength="1" placeholder="1"
-                       oninput="handleRegInput(this,'regPartnerP2');" inputmode="numeric" autocomplete="off" style="width:52px;">
+                       oninput="handleRegInput(this,'regPartnerP2'); markPartnerRegDirty();" inputmode="numeric" autocomplete="off" style="width:52px;">
                 <span class="reg-sep">-</span>
                 <input type="text" id="regPartnerP2" class="reg-input" maxlength="3" placeholder="234"
-                       oninput="handleRegInput(this,null);" inputmode="numeric" autocomplete="off" style="width:72px;">
+                       oninput="handleRegInput(this,null); markPartnerRegDirty();" inputmode="numeric" autocomplete="off" style="width:72px;">
               </div>
-              <div class="reg-hint">リーダーの登録番号から自動入力されます（手入力も可）</div>
+              <div class="reg-hint">リーダーと同じ登録番号が自動入力されます（別の番号の場合は書き換えてください）</div>
               <div class="err-msg" id="regPartner-err">登録番号は「1桁－3桁」の半角数字で入力してください</div>
             </div>
 
@@ -614,6 +614,17 @@ function handleRegInput(el, nextId) {
   if (nextId && el.value.length === parseInt(el.maxLength))
     document.getElementById(nextId).focus();
 }
+/* パートナー登録番号：リーダーと同じ番号を自動入力（パートナー欄を手で書き換えた場合は自動入力を止める。空にすると再開） */
+var partnerRegDirty = false;
+function markPartnerRegDirty() {
+  partnerRegDirty = (document.getElementById('regPartnerP1').value !== '' || document.getElementById('regPartnerP2').value !== '');
+  if (!partnerRegDirty) mirrorPartnerReg();
+}
+function mirrorPartnerReg() {
+  if (partnerRegDirty) return;
+  document.getElementById('regPartnerP1').value = document.getElementById('regLeaderP1').value;
+  document.getElementById('regPartnerP2').value = document.getElementById('regLeaderP2').value;
+}
 function getRegNo(p1Id, p2Id) {
   var p1 = document.getElementById(p1Id).value.trim();
   var p2 = document.getElementById(p2Id).value.trim();
@@ -638,8 +649,8 @@ function setLookupStatus(text, warn) {
 
 function clearAutofillData() {
   AUTOFILL_FIELDS.forEach(function(id) { document.getElementById(id).value = ''; });
-  document.getElementById('regPartnerP1').value = '';
-  document.getElementById('regPartnerP2').value = '';
+  partnerRegDirty = false;
+  mirrorPartnerReg();
   var msgEl = document.getElementById('leader-autofill-msg');
   if (msgEl) msgEl.classList.remove('show');
   syncTransferDefaults();
@@ -659,16 +670,8 @@ function applyMember(found) {
   fill('partnerKana', toHalfKana(found.partnerKana));
   fill('partnerKanji', found.partnerKanji);
 
-  var pp1 = document.getElementById('regPartnerP1');
-  var pp2 = document.getElementById('regPartnerP2');
-  pp1.value = ''; pp2.value = '';
-  if (found.regPartner) {
-    var parts = String(found.regPartner).split('-');
-    if (parts.length === 2 && /^[0-9]$/.test(parts[0]) && /^[0-9]{1,3}$/.test(parts[1])) {
-      pp1.value = parts[0];
-      pp2.value = parts[1];
-    }
-  }
+  partnerRegDirty = false;
+  mirrorPartnerReg();   // パートナー登録番号はリーダーと同じ番号
   document.getElementById('leader-autofill-msg').classList.add('show');
   syncTransferDefaults();
 }
