@@ -264,8 +264,8 @@ footer { text-align: center; font-size: 12px; color: var(--text-muted); padding:
             </div>
 
             <div class="form-group">
-              <label>リーダー名（ふりがな）<span class="req">*</span></label>
-              <input type="text" id="leaderKana" placeholder="例：ヤマダ タロウ" autocomplete="off" oninput="syncTransferDefaults();">
+              <label>リーダー名（ふりがな）<span class="req">*</span><span class="opt">（半角カナに自動変換）</span></label>
+              <input type="text" id="leaderKana" placeholder="例：ﾔﾏﾀﾞ ﾀﾛｳ" autocomplete="off">
               <div class="err-msg" id="leaderKana-err">ふりがなを入力してください</div>
             </div>
             <div class="form-group">
@@ -293,8 +293,8 @@ footer { text-align: center; font-size: 12px; color: var(--text-muted); padding:
             </div>
 
             <div class="form-group">
-              <label>パートナー名（ふりがな）<span class="req">*</span></label>
-              <input type="text" id="partnerKana" placeholder="例：スズキ ハナコ" autocomplete="off">
+              <label>パートナー名（ふりがな）<span class="req">*</span><span class="opt">（半角カナに自動変換）</span></label>
+              <input type="text" id="partnerKana" placeholder="例：ｽｽﾞｷ ﾊﾅｺ" autocomplete="off">
               <div class="err-msg" id="partnerKana-err">ふりがなを入力してください</div>
             </div>
             <div class="form-group">
@@ -401,8 +401,8 @@ footer { text-align: center; font-size: 12px; color: var(--text-muted); padding:
             <div class="err-msg" id="transferDate-err">振込日を入力してください</div>
           </div>
           <div class="form-group">
-            <label>振込人名<span class="req">*</span></label>
-            <input type="text" id="transferName" placeholder="例：ヤマダ タロウ" autocomplete="off" oninput="markTransferDirty('transferName');">
+            <label>振込人名<span class="req">*</span><span class="opt">（半角カナ）</span></label>
+            <input type="text" id="transferName" placeholder="例：ﾔﾏﾀﾞ ﾀﾛｳ" autocomplete="off" oninput="markTransferDirty('transferName');">
             <div class="err-msg" id="transferName-err">振込人名を入力してください</div>
           </div>
           <div class="form-group">
@@ -415,7 +415,7 @@ footer { text-align: center; font-size: 12px; color: var(--text-muted); padding:
             <div class="err-msg" id="transferAmount-err">振込金額を入力してください</div>
           </div>
         </div>
-        <div class="reg-hint">振込人名にはリーダー名（カタカナ）、振込金額には合計出場料を自動で表示します。実際の振込内容と異なる場合は書き換えてください。</div>
+        <div class="reg-hint">振込人名にはリーダー名（半角カタカナ）、振込金額には合計出場料を自動で表示します。実際の振込内容と異なる場合は書き換えてください。</div>
       </div>
     </div>
 
@@ -545,13 +545,60 @@ function toKatakana(str) {
   t = t.replace(/[ぁ-ゖ]/g, function(c) { return String.fromCharCode(c.charCodeAt(0) + 0x60); });
   return t;
 }
+/* ひらがな・全角カタカナ → 半角カタカナ（濁点・半濁点は「ｶﾞ」のように2文字へ分解） */
+var HK_MAP = (function() {
+  var fw = 'ヲァィゥェォャュョッーアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワンヴ' +
+           'ガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポ' + '　・';
+  var hw = ['ｦ','ｧ','ｨ','ｩ','ｪ','ｫ','ｬ','ｭ','ｮ','ｯ','ｰ','ｱ','ｲ','ｳ','ｴ','ｵ','ｶ','ｷ','ｸ','ｹ','ｺ','ｻ','ｼ','ｽ','ｾ','ｿ','ﾀ','ﾁ','ﾂ','ﾃ','ﾄ','ﾅ','ﾆ','ﾇ','ﾈ','ﾉ','ﾊ','ﾋ','ﾌ','ﾍ','ﾎ','ﾏ','ﾐ','ﾑ','ﾒ','ﾓ','ﾔ','ﾕ','ﾖ','ﾗ','ﾘ','ﾙ','ﾚ','ﾛ','ﾜ','ﾝ','ｳﾞ',
+            'ｶﾞ','ｷﾞ','ｸﾞ','ｹﾞ','ｺﾞ','ｻﾞ','ｼﾞ','ｽﾞ','ｾﾞ','ｿﾞ','ﾀﾞ','ﾁﾞ','ﾂﾞ','ﾃﾞ','ﾄﾞ','ﾊﾞ','ﾋﾞ','ﾌﾞ','ﾍﾞ','ﾎﾞ',
+            'ﾊﾟ','ﾋﾟ','ﾌﾟ','ﾍﾟ','ﾎﾟ',' ','･'];
+  var m = {};
+  for (var i = 0; i < fw.length; i++) m[fw.charAt(i)] = hw[i];
+  return m;
+})();
+function toHalfKana(str) {
+  var t = String(str || '');
+  t = t.replace(/[ぁ-ゖ]/g, function(c) { return String.fromCharCode(c.charCodeAt(0) + 0x60); }); // ひらがな→カタカナ
+  t = t.replace(/[ァ-ヴーヲ-ン・　]/g, function(c) { return HK_MAP[c] !== undefined ? HK_MAP[c] : c; });
+  t = t.replace(/[ー−‐―]/g, 'ｰ');
+  return t;
+}
+/* ふりがな系の入力欄を半角カナに揃える（IME変換中は触らず、確定後に変換） */
+var KANA_FIELDS = ['leaderKana', 'partnerKana', 'transferName'];
+function normalizeKanaField(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var v = toHalfKana(el.value);
+  if (v !== el.value) el.value = v;
+}
+function initKanaFields() {
+  KANA_FIELDS.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var composing = false;
+    el.addEventListener('compositionstart', function() { composing = true; });
+    el.addEventListener('compositionend', function() {
+      composing = false;
+      normalizeKanaField(id);
+      if (id === 'leaderKana') syncTransferDefaults();
+      if (id === 'transferName') markTransferDirty('transferName');
+    });
+    el.addEventListener('input', function() {
+      if (composing) return;
+      normalizeKanaField(id);
+      if (id === 'leaderKana') syncTransferDefaults();
+    });
+    el.addEventListener('blur', function() { normalizeKanaField(id); });
+  });
+}
+
 var transferDirty = { transferName: false, transferAmount: false };
 function markTransferDirty(id) {            // 利用者が手で入力したら自動表示を止める（空にすると再び自動表示）
   transferDirty[id] = val(id) !== '';
 }
 function syncTransferDefaults() {
   if (!transferDirty.transferName) {
-    document.getElementById('transferName').value = toKatakana(val('leaderKana'));
+    document.getElementById('transferName').value = toHalfKana(val('leaderKana'));
   }
   if (!transferDirty.transferAmount) {
     var t = calcTotal();
@@ -605,11 +652,11 @@ function applyMember(found) {
     el.classList.add('autofill-flash');
     setTimeout(function() { el.classList.remove('autofill-flash'); }, 1000);
   }
-  fill('leaderKana', found.leaderKana);
+  fill('leaderKana', toHalfKana(found.leaderKana));
   fill('leaderKanji', found.leaderKanji);
   fill('school', found.leaderSchool);   // 名簿の「所属」列（G列・リーダー／パートナー共通）
   fill('branch', found.branch);         // 名簿の「支局」列（H列）
-  fill('partnerKana', found.partnerKana);
+  fill('partnerKana', toHalfKana(found.partnerKana));
   fill('partnerKanji', found.partnerKanji);
 
   var pp1 = document.getElementById('regPartnerP1');
@@ -863,6 +910,7 @@ function eventLine(ev) { return '【No.' + ev.no + '】' + ev.grade + ' ' + ev.n
 function schoolOr(id) { return val(id) || '未記入'; }
 
 function goConfirm() {
+  KANA_FIELDS.forEach(normalizeKanaField);
   if (!validate()) return;
   document.getElementById('c-regLeader').textContent  = getRegNo('regLeaderP1', 'regLeaderP2');
   document.getElementById('c-regPartner').textContent = getRegNo('regPartnerP1', 'regPartnerP2');
@@ -905,6 +953,7 @@ function backToForm() {
 
 /* ═════════ 送信（EmailJS は await／GAS は fire-and-forget） ═════════ */
 async function submitForm() {
+  KANA_FIELDS.forEach(normalizeKanaField);
   var btn = document.getElementById('submitBtn');
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 送信中...';
@@ -993,6 +1042,7 @@ async function submitForm() {
 }
 
 buildEvCards();
+initKanaFields();
 updateTotal();
 </script>
 </body>
